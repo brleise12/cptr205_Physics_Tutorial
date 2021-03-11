@@ -50,6 +50,18 @@ window.addEventListener('DOMContentLoaded', DOMContentloaded => {
     const plats = []; //starting a list of platforms
     plats.push(new Platform(-1, -0.5, 2, 0.1));
     plats.push(new Platform(-1, .25, 2, 0.1));
+    class Coin {
+        constructor(x,y,w,h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+        }
+    }
+    const coins = []; //starting a list of platforms
+    coins.push(new Coin(-.1, -0.25, 0.2, 0.2));
+    coins.push(new Coin(.5, 1, 0.2, 0.2));
+
 
     //animation loop where the color gets adjusted as well
     const animation = timestamp => {
@@ -72,7 +84,7 @@ window.addEventListener('DOMContentLoaded', DOMContentloaded => {
             if(platform.x <= player_x && player_x <= platform.x + platform.w && platform.y <= player_y && player_y + velocity_y <= platform.y) { 
                 player_grounded = true
                 player_ay = 0;
-                velocity_y = 0;
+                velocity_y = 0;             //colliosion detection
                 player_y = platform.y;
                 return;
             } 
@@ -80,23 +92,43 @@ window.addEventListener('DOMContentLoaded', DOMContentloaded => {
         if(!player_grounded) {
             player_y += velocity_y;
         }
+
+        if(player_y <= -5){
+            player_y = 0;
+            player_x = 0;
+            player_ax = 0;
+            player_ay = 0;
+            velocity_x = 0;
+            velocity_y = 0;
+        }
+
+        coins.forEach(coin => {   
+            if(coin.x <= player_x && player_x <= coin.x + coin.w && coin.y <= player_y && player_y + velocity_y <= coin.y) { 
+                console.log("hello")
+                return;
+            } 
+        });
         
+        render.clearRect(0, 0, render.canvas.width, render.canvas.height);
+
         render.save();
         render.translate(-player_x * unit, player_y * unit);
 
-        render.clearRect(player_x * unit, player_y * unit, render.canvas.width, render.canvas.height);
-
         render.fillStyle = '#0f0';
-        render.fillRect(-1000, render.canvas.height / 2, 1000 * render.canvas.width, render.canvas.height / 2);
+        render.fillRect(-render.canvas.width, render.canvas.height/2, render.canvas.width*3, render.canvas.height*3);
    
         render.fillStyle = '#00f';
-        render.fillRect(-1050 * w, 0, 10000 * render.canvas.width, render.canvas.height / 2);
+        render.fillRect(-render.canvas.width, -render.canvas.height/2, render.canvas.width*3, render.canvas.height);
         
         render.fillStyle = '#f00';
         plats.forEach(platform => {
             render.fillRect(platform.x, -platform.y * unit + h/2, platform.w * w/2, platform.h * unit);
         });
 
+        render.fillStyle = '#aa0';
+        coins.forEach(coin => {
+            render.fillRect(coin.x, -coin.y * unit + h/2, coin.w * w/2, coin.h * unit);
+        });
 
 // gravity adjusted for the loop
         render.fillStyle = '#f0f';
